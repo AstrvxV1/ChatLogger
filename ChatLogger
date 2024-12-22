@@ -1,0 +1,81 @@
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+local UIS = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local SG = game:GetService("StarterGui")
+local currentPos = 0
+
+if _G.caLoaded == true then
+    SG:SetCore("SendNotification", {
+        Title = "Already Running!",
+        Text = "Chat logger already running, press right control to destroy ui and run it again!",
+        Time = 6
+    })
+
+    return
+else
+    SG:SetCore("SendNotification", {
+        Title = "Running!",
+        Text = "Chat logger running, press right control to destroy ui!",
+        Time = 6
+    })
+
+    _G.caLoaded = true
+end
+
+local mainGui = Instance.new("ScreenGui", CoreGui)
+local mainFrame = Instance.new("Frame", mainGui)
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+mainFrame.Size = UDim2.new(0.28, -298, 0.3, 0)
+mainFrame.Position = UDim2.new(0.2, -264, 0.4, 446)
+mainFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+mainFrame.BorderColor3 = Color3.new(0.109803, 0.109803, 0.109803)
+mainFrame.BorderSizePixel = 1
+mainFrame.ZIndex = 1
+
+local scrollFrame = Instance.new("ScrollingFrame", mainFrame)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.ScrollBarThickness = 8
+scrollFrame.Size = UDim2.new(0, 248, 0, 300)
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(78,78,79)
+scrollFrame.TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
+scrollFrame.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
+scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scrollFrame.ZIndex = 2
+
+local function addMsg(msg, plr)
+    local msgLabel = Instance.new("TextLabel", scrollFrame)
+    msgLabel.Text = plr.Name .. ": " .. msg
+    msgLabel.Size = UDim2.new(1, 0, 0, 20)
+    msgLabel.Position = UDim2.new(0, 0, 0, (0 + currentPos))
+    msgLabel.TextXAlignment = Enum.TextXAlignment.Left
+    msgLabel.Font = Enum.Font.SourceSans
+    msgLabel.TextSize = 18
+    msgLabel.BackgroundTransparency = 1
+    msgLabel.TextColor3 = Color3.new(0.133333, 0.133333, 0.133333)
+    msgLabel.TextScaled = true
+
+    currentPos += 14
+end
+
+game.Players.PlayerAdded:Connect(function(player)
+    player.Chatted:Connect(function(msg)
+        addMsg(msg, player)
+    end)
+end)
+
+for _, plr in pairs(game.Players:GetPlayers()) do
+    plr.Chatted:Connect(function(msg)
+        addMsg(msg, plr)
+    end)
+end
+
+UIS.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent == true then return end
+
+    if input.KeyCode == Enum.KeyCode.RightControl then
+        mainGui:Destroy()
+        _G.caLoaded = false
+    end
+end)
